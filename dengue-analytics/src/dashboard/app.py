@@ -38,28 +38,30 @@ def main_dashboard():
 
     df_rmvp_filtered = df_rmvp[~df_rmvp[municipality_col].isin(["SÃO PAULO", "SAO PAULO"])]
 
-    # 3. Gráfico de incidência/casos (lado a lado)
-    col1, col2 = st.columns(2)
-    with col1:
-        show_incidence_rmvp()
-    with col2:
-        show_comparison(
-            df_rmvp=df_rmvp_filtered,
-            municipality_col=municipality_col,
-            municipalities=municipalities,
-        )
-    
-    # 1. Gráfico de previsão (real vs previsto) - DESTAQUE NO TOPO
-    show_forecast(df_rmvp=df_rmvp_filtered)
-
-    # 2. Indicadores resumidos (cards)
+    # 1. Indicadores resumidos (cards) - - DESTAQUE NO TOPO
     show_indicators(df_rmvp=df_rmvp_filtered, municipality_col=municipality_col)
-
-    
-
     # 4. Ranking de municípios e evolução temporal (em colunas)
 
     show_ranking(df_rmvp=df_rmvp_filtered, municipality_col=municipality_col, years=years)
+    # 2. Gráfico de incidência/casos (lado a lado)
+    show_incidence_rmvp()
+
+    # 3. Comparação entre municípios (em colunas)
+    show_comparison(
+        df_rmvp=df_rmvp_filtered,
+        municipality_col=municipality_col,
+        municipalities=municipalities,)
+    
+    
+
+    # 2. Gráfico de previsão (real vs previsto)  -Modelos de ML
+    show_forecast(df_rmvp=df_rmvp_filtered)
+
+   
+
+    
+
+    
 
     show_evolution(
         df_rmvp=df_rmvp_filtered,
@@ -73,4 +75,3 @@ def main_dashboard():
 
 if __name__ == "__main__":
     main_dashboard()
-
