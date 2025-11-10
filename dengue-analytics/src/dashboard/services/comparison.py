@@ -17,3 +17,4 @@ def show_comparison(df_rmvp, municipality_col, municipalities):
         title="Comparativo de casos anuais entre municípios",
     )
     st.plotly_chart(fig_comp, use_container_width=True)
+
