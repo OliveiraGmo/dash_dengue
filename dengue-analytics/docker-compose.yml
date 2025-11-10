@@ -1,0 +1,10 @@
+services:
+  dashboard:
+    build: .
+    container_name: dengue_dashboard
+    ports:
+      - "8501:8501"
+    volumes:
+      - ./src:/app/src
+      - ./src/data:/app/src/data
+    restart: unless-stopped
