@@ -5,7 +5,7 @@ import streamlit as st
 
 
 def show_incidence_rmvp():
-    st.header("Incidência de Dengue no RMVP de 2007 à 2025")
+    st.header("Incidência de Dengue no RMVP de 2007 à 2024")
     dados = pd.read_csv("src/data/dados_incidencia_mensal.csv")
     meses = ["Jan", "Fev", "Mar", "Abr", "Mai", "Jun", "Jul", "Ago", "Set", "Out", "Nov", "Dez"]
 
@@ -61,3 +61,4 @@ def show_incidence_rmvp():
     )
     fig.update_layout(showlegend=True)
     st.plotly_chart(fig, use_container_width=True)
+
