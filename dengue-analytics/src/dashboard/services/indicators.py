@@ -55,21 +55,8 @@ def show_indicators(df_rmvp, municipality_col):
             width: 100%;
             max-width: 100vw;
         }
-        .card-indicador {
-            background: #2874A6;
-            border-radius: 16px;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.10);
-            border: 1px solid #1B4F72;
-            padding: 22px 10px 18px 10px;
-            min-width: 180px;
-            width: auto;
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            margin-bottom: 0;
-        }
+        
+        /* Definição de .card-indicador (removida a duplicata) */
         .card-indicador {
             background: #2874A6;
             border-radius: 16px;
@@ -127,6 +114,11 @@ def show_indicators(df_rmvp, municipality_col):
         unsafe_allow_html=True,
     )
     col1, col2, col3, col4 = st.columns(4)
+    
+    # --- MUDANÇA PRINCIPAL AQUI ---
+    # Removido height:200px;
+    # Adicionado height: 100%; (para preencher a coluna)
+    # Adicionado min-height: 180px; (para garantir um tamanho mínimo)
     card_style = """
         <div style="
             background:rgba(40,116,166,0.0);  /* transparente */
@@ -140,7 +132,8 @@ def show_indicators(df_rmvp, municipality_col):
             align-items:center;
             justify-content:center;
             width:100%;
-            height:200px; /* Altura fixa para uniformidade */
+            height: 100%; /* Faz o card preencher a altura da coluna */
+            min-height: 180px; /* Garante uma altura mínima */
             color:#fff;
         ">
             <span style='font-size:2.2rem;margin-bottom:6px;'>{icon}</span>
@@ -171,3 +164,4 @@ def show_indicators(df_rmvp, municipality_col):
         ),
         unsafe_allow_html=True,
     )
+
