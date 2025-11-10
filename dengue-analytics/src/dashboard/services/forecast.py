@@ -18,7 +18,7 @@ def _cached_fit_all_models_with_future(df):
 
 
 def show_forecast(df_rmvp):
-    st.subheader("Previsão de casos de dengue (Comparativo de Modelos)")
+    st.subheader("Previsão de casos de dengue (Comparativo de Modelos )")
     df, _, test = _preprocess_and_split(df_rmvp)
     results, future_results, future_dates = _cached_fit_all_models_with_future(df)
     # Gráficos lado a lado agrupados por tipo
@@ -55,7 +55,7 @@ def show_forecast(df_rmvp):
                     plot_real_vs_pred(df, test, lstm_pred, model_label)
                 else:
                     plot_real_vs_pred(df, test, results[model_key], model_label)
-    st.subheader("Previsão para 2026 (12 meses futuros)")
+    st.subheader("Previsão para 2025 (12 meses futuros)")
     _plot_future_chart(future_results, future_dates)
 
 
@@ -122,8 +122,8 @@ def _fit_all_models_with_future(df):
     MODEL_SARIMA = "SARIMA"
     results = {}
     future_results = {}
-    # Gera datas futuras para o ano de 2026 (jan-dez)
-    future_dates = pd.date_range(start="2026-01-01", end="2026-12-01", freq="MS")
+    # Gera datas futuras para o ano de 2025 (jan-dez)
+    future_dates = pd.date_range(start="2025-01-01", end="2025-12-01", freq="MS")
 
     # XGBoost
     xgb_df = df.copy()
@@ -132,8 +132,8 @@ def _fit_all_models_with_future(df):
     xgb_df["mes_sin"] = np.sin(2 * np.pi * xgb_df["mes"] / 12)
     xgb_df["mes_cos"] = np.cos(2 * np.pi * xgb_df["mes"] / 12)
     xgb_df["is_2024"] = (xgb_df["ano"] == 2024).astype(int)
-    xgb_df["is_2026"] = (xgb_df["ano"] == 2026).astype(int)
-    x_xgb = xgb_df[["mes_sin", "mes_cos", "is_2024", "is_2026"]]
+    xgb_df["is_2025"] = (xgb_df["ano"] == 2025).astype(int)
+    x_xgb = xgb_df[["mes_sin", "mes_cos", "is_2024", "is_2025"]]
     y_xgb = xgb_df["casos"]
     x_train_xgb, x_test_xgb = x_xgb.iloc[:-12], x_xgb.iloc[-12:]
     y_train_xgb = y_xgb.iloc[:-12]
@@ -147,7 +147,7 @@ def _fit_all_models_with_future(df):
             "mes_sin": np.sin(2 * np.pi * future_dates.month / 12),
             "mes_cos": np.cos(2 * np.pi * future_dates.month / 12),
             "is_2024": (future_dates.year == 2024).astype(int),
-            "is_2026": (future_dates.year == 2026).astype(int),
+            "is_2025": (future_dates.year == 2025).astype(int),
         }
     )
     future_results[MODEL_XGB] = xgb.predict(future_xgb)
@@ -166,9 +166,9 @@ def _fit_all_models_with_future(df):
     lr_pred = lr.predict(x_test_lr)
     results[MODEL_LINEAR] = lr_pred
     # Previsão futura Linear
-    # Calcular mes_seq para 2026
+    # Calcular mes_seq para 2025
     future_lr = pd.DataFrame(
-        {"mes_seq": [((2026 - lr_df["ano"].min()) * 12 + i) for i in range(12)]}
+        {"mes_seq": [((2025 - lr_df["ano"].min()) * 12 + i) for i in range(12)]}
     )
     future_results[MODEL_LINEAR] = lr.predict(future_lr)
 
@@ -179,8 +179,8 @@ def _fit_all_models_with_future(df):
     rf_df["mes_sin"] = np.sin(2 * np.pi * rf_df["mes"] / 12)
     rf_df["mes_cos"] = np.cos(2 * np.pi * rf_df["mes"] / 12)
     rf_df["is_2024"] = (rf_df["ano"] == 2024).astype(int)
-    rf_df["is_2026"] = (rf_df["ano"] == 2026).astype(int)
-    x_rf = rf_df[["ano", "mes", "mes_sin", "mes_cos", "is_2024", "is_2026"]]
+    rf_df["is_2025"] = (rf_df["ano"] == 2025).astype(int)
+    x_rf = rf_df[["ano", "mes", "mes_sin", "mes_cos", "is_2024", "is_2025"]]
     y_rf = rf_df["casos"]
     x_train_rf, x_test_rf = x_rf.iloc[:-12], x_rf.iloc[-12:]
     y_train_rf = y_rf.iloc[:-12]
@@ -196,7 +196,7 @@ def _fit_all_models_with_future(df):
             "mes_sin": np.sin(2 * np.pi * future_dates.month / 12),
             "mes_cos": np.cos(2 * np.pi * future_dates.month / 12),
             "is_2024": (future_dates.year == 2024).astype(int),
-            "is_2026": (future_dates.year == 2026).astype(int),
+            "is_2025": (future_dates.year == 2025).astype(int),
         }
     )
     future_results[MODEL_RF] = rf.predict(future_rf)
@@ -210,13 +210,13 @@ def _fit_all_models_with_future(df):
     sarima_fit = sarima.fit(disp=False)
     sarima_pred = sarima_fit.predict(start=test.index[0], end=test.index[-1], dynamic=False)
     results[MODEL_SARIMA] = sarima_pred
-    # Previsão futura SARIMA (2026)
-    # Calcular steps até 2026
+    # Previsão futura SARIMA (2025)
+    # Calcular steps até 2025
     last_date = df["data"].max()
-    months_to_2026 = (2026 - last_date.year) * 12 + (1 - last_date.month)
-    steps = months_to_2026 + 12
+    months_to_2025 = (2025 - last_date.year) * 12 + (1 - last_date.month)
+    steps = months_to_2025 + 12
     future_sarima = sarima_fit.get_forecast(steps=steps)
-    # Pegar apenas os últimos 12 meses (2026)
+    # Pegar apenas os últimos 12 meses (2025)
     future_results[MODEL_SARIMA] = future_sarima.predicted_mean.values[-12:]
 
     # Prophet
@@ -224,15 +224,15 @@ def _fit_all_models_with_future(df):
     train_p = df_prophet.iloc[:-12]
     prophet = Prophet(yearly_seasonality=True, weekly_seasonality=False, daily_seasonality=False)
     prophet.fit(train_p)
-    # Previsão futura Prophet (2026)
+    # Previsão futura Prophet (2025)
     future = prophet.make_future_dataframe(
-        periods=(12 + (2026 - df_prophet["ds"].dt.year.max() - 1) * 12), freq="MS"
+        periods=(12 + (2025 - df_prophet["ds"].dt.year.max() - 1) * 12), freq="MS"
     )
     forecast = prophet.predict(future)
-    # Pegar apenas 2026
-    forecast_2026 = forecast[forecast["ds"].dt.year == 2026]["yhat"].values
+    # Pegar apenas 2025
+    forecast_2025 = forecast[forecast["ds"].dt.year == 2025]["yhat"].values
     results[MODEL_PROPHET] = forecast.iloc[-12:]["yhat"].values
-    future_results[MODEL_PROPHET] = forecast_2026
+    future_results[MODEL_PROPHET] = forecast_2025
 
     # MLP (Rede Neural)
     mlp_df = df.copy()
@@ -241,8 +241,8 @@ def _fit_all_models_with_future(df):
     mlp_df["mes_sin"] = np.sin(2 * np.pi * mlp_df["mes"] / 12)
     mlp_df["mes_cos"] = np.cos(2 * np.pi * mlp_df["mes"] / 12)
     mlp_df["is_2024"] = (mlp_df["ano"] == 2024).astype(int)
-    mlp_df["is_2026"] = (mlp_df["ano"] == 2026).astype(int)
-    x_mlp = mlp_df[["ano", "mes", "mes_sin", "mes_cos", "is_2024", "is_2026"]]
+    mlp_df["is_2025"] = (mlp_df["ano"] == 2025).astype(int)
+    x_mlp = mlp_df[["ano", "mes", "mes_sin", "mes_cos", "is_2024", "is_2025"]]
     y_mlp = mlp_df["casos"]
     x_train_mlp, x_test_mlp = x_mlp.iloc[:-12], x_mlp.iloc[-12:]
     y_train_mlp = y_mlp.iloc[:-12]
@@ -268,7 +268,7 @@ def _fit_all_models_with_future(df):
             "mes_sin": np.sin(2 * np.pi * future_dates.month / 12),
             "mes_cos": np.cos(2 * np.pi * future_dates.month / 12),
             "is_2024": (future_dates.year == 2024).astype(int),
-            "is_2026": (future_dates.year == 2026).astype(int),
+            "is_2025": (future_dates.year == 2025).astype(int),
         }
     )
     future_mlp_scaled = scaler.transform(future_mlp)
@@ -303,38 +303,38 @@ def _fit_all_models_with_future(df):
     # Para alinhar datas do teste
     test_dates = df["data"].iloc[-12:].values
     results["LSTM"] = (test_dates, y_pred_lstm)
-    # Previsão futura LSTM (recursiva para 2026)
-    # Calcular steps até 2026
+    # Previsão futura LSTM (recursiva para 2025)
+    # Calcular steps até 2025
     last_date = df["data"].max()
-    months_to_2026 = (2026 - last_date.year) * 12 + (1 - last_date.month)
-    input_lstm_arr = np.concatenate([series, np.zeros(months_to_2026)])[-(n_lags + 12) : -12].copy()
-    lstm_preds_2026 = []
+    months_to_2025 = (2025 - last_date.year) * 12 + (1 - last_date.month)
+    input_lstm_arr = np.concatenate([series, np.zeros(months_to_2025)])[-(n_lags + 12) : -12].copy()
+    lstm_preds_2025 = []
     for i in range(12):
         pred = lstm_model.predict(input_lstm_arr.reshape(1, n_lags, 1)).flatten()[0]
-        lstm_preds_2026.append(pred)
+        lstm_preds_2025.append(pred)
         input_lstm_arr = np.roll(input_lstm_arr, -1)
         input_lstm_arr[-1] = pred
-    future_results["LSTM"] = lstm_preds_2026
+    future_results["LSTM"] = lstm_preds_2025
 
     return results, future_results, future_dates
 
 
 def _plot_future_chart(future_results, future_dates):
     MODE_LINE_MARKERS = "lines+markers"
-    # Filtrar datas e valores para mostrar apenas 2026
-    mask_2026 = future_dates.year == 2026
-    future_dates_2026 = future_dates[mask_2026]
+    # Filtrar datas e valores para mostrar apenas 2025
+    mask_2025 = future_dates.year == 2025
+    future_dates_2025 = future_dates[mask_2025]
     fig = go.Figure()
-    # Previsões futuras (apenas 2026)
+    # Previsões futuras (apenas 2025)
     for model, y_pred in future_results.items():
-        y_pred_2026 = (
-            y_pred[-len(future_dates_2026) :] if len(y_pred) >= len(future_dates_2026) else y_pred
+        y_pred_2025 = (
+            y_pred[-len(future_dates_2025) :] if len(y_pred) >= len(future_dates_2025) else y_pred
         )
         fig.add_trace(
-            go.Scatter(x=future_dates_2026, y=y_pred_2026, mode=MODE_LINE_MARKERS, name=f"{model}")
+            go.Scatter(x=future_dates_2025, y=y_pred_2025, mode=MODE_LINE_MARKERS, name=f"{model}")
         )
     fig.update_layout(
-        title="Previsão dos Modelos para 2026",
+        title="Previsão dos Modelos para 2025",
         xaxis_title="Mês",
         yaxis_title="Casos de Dengue",
         legend_title="Modelo",
@@ -343,8 +343,8 @@ def _plot_future_chart(future_results, future_dates):
             tickformat="%b",
             dtick="M1",
             tickmode="array",
-            tickvals=future_dates_2026,
-            ticktext=[d.strftime("%b") for d in future_dates_2026],
+            tickvals=future_dates_2025,
+            ticktext=[d.strftime("%b") for d in future_dates_2025],
         ),
     )
     st.plotly_chart(fig, use_container_width=True)
